@@ -1,0 +1,2 @@
+test :
+	avr-gcc main.c -o test -Os
