@@ -7,6 +7,7 @@
 int platypus = 0;
 unsigned char fifo_to_send[FIFO_SIZE];
 unsigned int head_fifo = 0, back_fifo = 0;
+bool is_capture_on = false;
 
 //screen /dev/ttyACM0 300,8N1
 void USART_Init(unsigned int ubrr)
@@ -26,16 +27,15 @@ void USART_Init(unsigned int ubrr)
 	UCSR0C = (1 << USBS0) | (3 << UCSZ00);
 }
 
-void USART_Transmit(unsigned char data)
+bool USART_Transmit(unsigned char data)
 {
-	/*
-	 * Wait for empty transmit buffer 
-	 */
-	while(!(UCSR0A & (1 << UDRE0)));
-	/*
-	 * Put data into buffer, sends the data 
-	 */
-	UDR0 = data;
+	unsigned int tmp = (back_fifo+1)%FIFO_SIZE;
+	if(tmp == head_fifo)
+		return false;
+	fifo_to_send[back_fifo] = data;
+	back_fifo = tmp;
+	UCSR0B |= _BV(UDRIE0); //Réactive les interruptions pour l'envois
+	return true;
 }
 
 void USART_Transmit_string(char *s)	// A tester
@@ -60,60 +60,60 @@ void USART_Transmit_int(int n)	// testee
 	}
 }
 
-ISR(USART_TX_vect)
-{
-	/*//Disable interrupt*/
-	SREG &= ~0x80;
-	UDR0 = fifo_to_send[head_fifo];
-	head_fifo = (head_fifo+1)%FIFO_SIZE;
-	if(head_fifo == back_fifo) //Disable interupt when fifo is empty
-		UCSR0B &= ~(1 << TXCIE0);
-	/*//Enable interrupt*/
-	SREG |= 0x80;
-}
 ISR(USART_RX_vect) //Reception de donnée depuis le port serie
 {
 	/*//Disable interrupt*/
 	SREG &= ~0x80;
 	/*UDR0 = 'a';*/
-	UDR0;
-	platypus++;
+	unsigned char tmp = UDR0;
+	if(tmp == 'a')
+	{
+		PORTB ^= _BV(PB2);
+		PORTB ^= _BV(PB5);
+		is_capture_on = !is_capture_on;
+	}
+		
 	/*//Enable interrupt*/
 	SREG |= 0x80;
 }
-/*ISR(USART_UDRE_vect)*/
-/*{*/
+ISR(USART_UDRE_vect)
+{
 	/*Disable interrupt*/
-	/*SREG &= ~0x80;*/
-	/*[>UDR0 = 'a';<]*/
-	/*PORTB |= _BV(PB5);*/
-	/*[>//Enable interrupt<]*/
-	/*SREG |= 0x80;*/
-/*}*/
+	SREG &= ~0x80;
+	UDR0 = fifo_to_send[head_fifo];
+	head_fifo = (head_fifo+1)%FIFO_SIZE;
+	if(head_fifo == back_fifo) //Disable interupt when fifo is empty
+		UCSR0B &= ~(1 << UDRIE0);
+	PORTB ^= _BV(PB3);
+	/*//Enable interrupt*/
+	SREG |= 0x80;
+}
 int main()
 {
 	// Active et allume la broche PB5 (led)
 	//Précise que l'on prend la main sur la broche de la led
 	DDRB |= _BV(PB5);
-	/*DDRB |= _BV(PB2);*/
+	DDRB |= _BV(PB2);
+	DDRB |= _BV(PB3);
+
 	USART_Init(MYUBRR);
 
 	//Eteint les led
-	/*PORTB |= _BV(PB2);*/
+	PORTB &= ~_BV(PB3);
+	PORTB &= ~_BV(PB2);
 	PORTB &= ~_BV(PB5);
 	int i = 0;
 	SREG = 0x80;
-	/*sei();*/
 	while(1)
 	{
 		if(i == 0)
 		{
 			//Set la led
 			/*PORTB ^= _BV(PB5);*/
-			USART_Transmit_int(platypus);
-			USART_Transmit(' ');
-
-			/*USART_Transmit_string("abcde");*/
+			/*USART_Transmit_int(platypus);*/
+			/*USART_Transmit(' ');*/
+			if(is_capture_on)
+				USART_Transmit_string("abcde ");
 			/*USART_Transmit_int(MYUBRR);*/
 			/*USART_Transmit(' ');*/
 
