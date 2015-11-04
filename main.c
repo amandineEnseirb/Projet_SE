@@ -68,7 +68,6 @@ ISR(USART_RX_vect) //Reception de donnée depuis le port serie
 	unsigned char tmp = UDR0;
 	if(tmp == 'a')
 	{
-		PORTB ^= _BV(PB2);
 		PORTB ^= _BV(PB5);
 		is_capture_on = !is_capture_on;
 	}
@@ -88,6 +87,18 @@ ISR(USART_UDRE_vect)
 	/*//Enable interrupt*/
 	SREG |= 0x80;
 }
+ISR(INT0_vect)
+{
+	/*Disable interrupt*/
+	SREG &= ~0x80;
+	/*UDR0 = fifo_to_send[head_fifo];*/
+	/*head_fifo = (head_fifo+1)%FIFO_SIZE;*/
+	/*if(head_fifo == back_fifo) //Disable interupt when fifo is empty*/
+		/*UCSR0B &= ~(1 << UDRIE0);*/
+	PORTB ^= _BV(PB2);
+	/*//Enable interrupt*/
+	SREG |= 0x80;
+}
 int main()
 {
 	// Active et allume la broche PB5 (led)
@@ -95,6 +106,7 @@ int main()
 	DDRB |= _BV(PB5);
 	DDRB |= _BV(PB2);
 	DDRB |= _BV(PB3);
+	DDRD |= _BV(PD2);//Digital pin 2 (INT0)
 
 	USART_Init(MYUBRR);
 
@@ -102,6 +114,12 @@ int main()
 	PORTB &= ~_BV(PB3);
 	PORTB &= ~_BV(PB2);
 	PORTB &= ~_BV(PB5);
+
+	//Enable external interrupt on INT0
+	EIMSK |= _BV(INT0);
+	//Interrupt on INT0 with raising level
+	EICRA |= (_BV(ISC00) | _BV(ISC01));
+
 	int i = 0;
 	SREG = 0x80;
 	while(1)
