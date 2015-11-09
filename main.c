@@ -4,6 +4,12 @@
 #define BAUD 300 
 #define MYUBRR FOSC/16/BAUD-1
 #define FIFO_SIZE 200
+#define LED_BOARD PB5
+#define LED_1 PB3
+#define LED_2 PB2
+#define LED_3 PB1
+#define DATA PB0
+#define CLOCK PD2
 int platypus = 0;
 unsigned char fifo_to_send[FIFO_SIZE];
 unsigned int head_fifo = 0, back_fifo = 0;
@@ -68,7 +74,7 @@ ISR(USART_RX_vect) //Reception de donnée depuis le port serie
 	unsigned char tmp = UDR0;
 	if(tmp == 'a')
 	{
-		PORTB ^= _BV(PB5);
+		PORTB ^= _BV(LED_BOARD);
 		is_capture_on = !is_capture_on;
 	}
 		
@@ -83,7 +89,7 @@ ISR(USART_UDRE_vect)
 	head_fifo = (head_fifo+1)%FIFO_SIZE;
 	if(head_fifo == back_fifo) //Disable interupt when fifo is empty
 		UCSR0B &= ~(1 << UDRIE0);
-	PORTB ^= _BV(PB3);
+	PORTB ^= _BV(LED_1);
 	/*//Enable interrupt*/
 	SREG |= 0x80;
 }
@@ -95,30 +101,60 @@ ISR(INT0_vect)
 	/*head_fifo = (head_fifo+1)%FIFO_SIZE;*/
 	/*if(head_fifo == back_fifo) //Disable interupt when fifo is empty*/
 		/*UCSR0B &= ~(1 << UDRIE0);*/
-	PORTB ^= _BV(PB2);
+	PORTB ^= _BV(LED_2);
+	/*USART_Transmit('a');*/
 	/*//Enable interrupt*/
 	SREG |= 0x80;
 }
+/*bool volatile wait_otter;*/
+/*ISR(TIMER1_COMPA_vect)*/
+/*{*/
+	/*SREG &= ~0x80;*/
+	/*wait_otter = false;*/
+	/*PRR |= _BV(PRTIM1); //To disable counter*/
+	/*SREG |= 0x80;*/
+/*}*/
+/*void wait(unsigned short cycles)*/
+/*{*/
+	/*wait_otter = true;*/
+	/*OCR1A = cycles;*/
+	/*TCNT1 = 0;*/
+	/*//Selectionner source (internal clock)*/
+	/*TIMSK1 //Enable interrupt*/
+	/*OCIE1A //enable -> to activate interrupt*/
+	/*PRR &= ~_BV(PRTIM1); //To enable counter*/
+	/*while(wait_otter);*/
+/*}*/
+
 int main()
 {
 	// Active et allume la broche PB5 (led)
 	//Précise que l'on prend la main sur la broche de la led
-	DDRB |= _BV(PB5);
-	DDRB |= _BV(PB2);
-	DDRB |= _BV(PB3);
-	DDRD |= _BV(PD2);//Digital pin 2 (INT0)
+	DDRB |= _BV(LED_BOARD);
+	DDRB |= _BV(LED_3);
+	DDRB |= _BV(LED_2);
+	DDRB |= _BV(LED_1);
+	DDRB |= _BV(DATA);
+	DDRD |= _BV(CLOCK);//Digital pin 2 (INT0)
 
 	USART_Init(MYUBRR);
 
 	//Eteint les led
-	PORTB &= ~_BV(PB3);
-	PORTB &= ~_BV(PB2);
-	PORTB &= ~_BV(PB5);
+	PORTB &= ~_BV(LED_BOARD);//On board
+	PORTB &= ~_BV(LED_1);
+	PORTB &= ~_BV(LED_2);
+	PORTB &= ~_BV(LED_3);
 
 	//Enable external interrupt on INT0
 	EIMSK |= _BV(INT0);
 	//Interrupt on INT0 with raising level
 	EICRA |= (_BV(ISC00) | _BV(ISC01));
+
+	PORTD &= ~_BV(CLOCK); //Mettre l'horloge basse pendant au moins 10 ms
+	for(int volatile j = 0; j < 10000; ++j);
+	PORTB &= ~_BV(DATA); //Met les donnée à 0
+	PORTD |= _BV(CLOCK); //Met la clock à 0
+	DDRD &= ~_BV(CLOCK); //Relache la clock
 
 	int i = 0;
 	SREG = 0x80;
@@ -130,8 +166,8 @@ int main()
 			/*PORTB ^= _BV(PB5);*/
 			/*USART_Transmit_int(platypus);*/
 			/*USART_Transmit(' ');*/
-			if(is_capture_on)
-				USART_Transmit_string("abcde ");
+			/*if(is_capture_on)*/
+				/*USART_Transmit_string("abcde ");*/
 			/*USART_Transmit_int(MYUBRR);*/
 			/*USART_Transmit(' ');*/
 
