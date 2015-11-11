@@ -3,15 +3,16 @@
 #define FOSC 16000000// Clock Speed
 #define BAUD 300 
 #define MYUBRR FOSC/16/BAUD-1
-#define FIFO_SIZE 200
+#define FIFO_SIZE 500 //2K bytes de RAM
 #define LED_BOARD PB5
 #define LED_1 PB3
 #define LED_2 PB2
 #define LED_3 PB1
+#define LED_4 PB4
 #define DATA PB0
 #define CLOCK PD2
 int platypus = 0;
-unsigned char fifo_to_send[FIFO_SIZE];
+unsigned char fifo_to_send[FIFO_SIZE]; 
 unsigned int head_fifo = 0, back_fifo = 0;
 bool is_capture_on = false;
 
@@ -89,20 +90,53 @@ ISR(USART_UDRE_vect)
 	head_fifo = (head_fifo+1)%FIFO_SIZE;
 	if(head_fifo == back_fifo) //Disable interupt when fifo is empty
 		UCSR0B &= ~(1 << UDRIE0);
-	PORTB ^= _BV(LED_1);
 	/*//Enable interrupt*/
 	SREG |= 0x80;
 }
+unsigned char accumulateur = 0, counter = 0;
+bool is_accumulating = false;
+bool parity;
 ISR(INT0_vect)
 {
 	/*Disable interrupt*/
+	/*USART_Transmit_int(counter);*/
 	SREG &= ~0x80;
-	/*UDR0 = fifo_to_send[head_fifo];*/
-	/*head_fifo = (head_fifo+1)%FIFO_SIZE;*/
-	/*if(head_fifo == back_fifo) //Disable interupt when fifo is empty*/
-		/*UCSR0B &= ~(1 << UDRIE0);*/
-	PORTB ^= _BV(LED_2);
-	/*USART_Transmit('a');*/
+	if(!is_accumulating && !(DDRB & _BV(DATA))) //Start bit qui est toujours à 0
+	{
+		is_accumulating = true;
+		PORTB ^= _BV(LED_4);
+	}
+	else if(is_accumulating && counter < 8)
+	{
+		if(DDRB & _BV(DATA)) //On a 1 dans les datas
+		{
+			USART_Transmit('1');
+			accumulateur |= _BV(counter);
+		}
+		else
+		{
+			USART_Transmit('0');
+			accumulateur &= ~_BV(counter);
+		}
+		++counter;
+	}
+	else if(is_accumulating && counter == 8)
+	{
+		parity = (DDRB & _BV(DATA));
+		++counter;
+		USART_Transmit('\n');//Ship notre data
+		if(accumulateur == 21)
+			PORTB ^= _BV(LED_1);
+			
+		PORTB ^= _BV(LED_2);
+	}
+	else if(is_accumulating && counter == 9)
+	{
+		is_accumulating = false;
+		counter = 0;
+		if(!(DDRB & _BV(DATA))) //Stop bit, doit être égale à 1
+			PORTB ^= _BV(LED_3);
+	}
 	/*//Enable interrupt*/
 	SREG |= 0x80;
 }
@@ -131,11 +165,12 @@ int main()
 	// Active et allume la broche PB5 (led)
 	//Précise que l'on prend la main sur la broche de la led
 	DDRB |= _BV(LED_BOARD);
+	DDRB |= _BV(LED_4);
 	DDRB |= _BV(LED_3);
 	DDRB |= _BV(LED_2);
 	DDRB |= _BV(LED_1);
-	DDRB |= _BV(DATA);
-	DDRD |= _BV(CLOCK);//Digital pin 2 (INT0)
+	/*DDRB |= _BV(DATA);*/
+	/*DDRD |= _BV(CLOCK);//Digital pin 2 (INT0)*/
 
 	USART_Init(MYUBRR);
 
@@ -144,35 +179,24 @@ int main()
 	PORTB &= ~_BV(LED_1);
 	PORTB &= ~_BV(LED_2);
 	PORTB &= ~_BV(LED_3);
+	PORTB &= ~_BV(LED_4);
 
 	//Enable external interrupt on INT0
 	EIMSK |= _BV(INT0);
-	//Interrupt on INT0 with raising level
-	EICRA |= (_BV(ISC00) | _BV(ISC01));
+	//Interrupt on INT0 with falling level
+	EICRA |= (_BV(ISC01));
 
-	PORTD &= ~_BV(CLOCK); //Mettre l'horloge basse pendant au moins 10 ms
-	for(int volatile j = 0; j < 10000; ++j);
-	PORTB &= ~_BV(DATA); //Met les donnée à 0
-	PORTD |= _BV(CLOCK); //Met la clock à 0
-	DDRD &= ~_BV(CLOCK); //Relache la clock
+	//Sert à initialiser l'envois depuis l'host
+	/*PORTD |= _BV(CLOCK); //Met la clock à 1*/
+	/*PORTB |= _BV(DATA); //Met les donnée à 1*/
+	/*for(int volatile j; j < 1000000; ++j);*/
+	/*DDRD &= ~_BV(CLOCK); //Relache la clock*/
+	/*DDRB &= ~_BV(DATA); //Relache la clock*/
 
 	int i = 0;
 	SREG = 0x80;
 	while(1)
 	{
-		if(i == 0)
-		{
-			//Set la led
-			/*PORTB ^= _BV(PB5);*/
-			/*USART_Transmit_int(platypus);*/
-			/*USART_Transmit(' ');*/
-			/*if(is_capture_on)*/
-				/*USART_Transmit_string("abcde ");*/
-			/*USART_Transmit_int(MYUBRR);*/
-			/*USART_Transmit(' ');*/
-
-		}
-		i = (i + 1) % FOSC;
 	}
 }
 
