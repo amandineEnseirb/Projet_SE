@@ -1,13 +1,13 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #define FOSC 16000000// Clock Speed
-#define BAUD 300 
+#define BAUD 9600 
 #define MYUBRR FOSC/16/BAUD-1
-#define FIFO_SIZE 500 //2K bytes de RAM
+#define FIFO_SIZE 1024 //2K bytes de RAM
 #define LED_BOARD PB5
-#define LED_1 PB3
+#define LED_1 PB1
 #define LED_2 PB2
-#define LED_3 PB1
+#define LED_3 PB3
 #define LED_4 PB4
 #define DATA PB0
 #define CLOCK PD2
@@ -74,10 +74,7 @@ ISR(USART_RX_vect) //Reception de donnée depuis le port serie
 	/*UDR0 = 'a';*/
 	unsigned char tmp = UDR0;
 	if(tmp == 'a')
-	{
-		PORTB ^= _BV(LED_BOARD);
 		is_capture_on = !is_capture_on;
-	}
 		
 	/*//Enable interrupt*/
 	SREG |= 0x80;
@@ -95,50 +92,47 @@ ISR(USART_UDRE_vect)
 }
 unsigned char accumulateur = 0, counter = 0;
 bool is_accumulating = false;
-bool parity;
+bool oddity;
 ISR(INT0_vect)
 {
-	/*Disable interrupt*/
 	/*USART_Transmit_int(counter);*/
-	SREG &= ~0x80;
-	if(!is_accumulating && !(DDRB & _BV(DATA))) //Start bit qui est toujours à 0
+	if(!is_accumulating && !(PINB & _BV(DATA))) //Start bit qui est toujours à 0
 	{
 		is_accumulating = true;
-		PORTB ^= _BV(LED_4);
+		PORTB ^= _BV(LED_BOARD);
 	}
 	else if(is_accumulating && counter < 8)
 	{
-		if(DDRB & _BV(DATA)) //On a 1 dans les datas
+		if(PINB & _BV(DATA)) //On a 1 dans les datas
 		{
-			USART_Transmit('1');
+			/*USART_Transmit('1');*/
 			accumulateur |= _BV(counter);
 		}
 		else
 		{
-			USART_Transmit('0');
+			/*USART_Transmit('0');*/
 			accumulateur &= ~_BV(counter);
 		}
 		++counter;
 	}
 	else if(is_accumulating && counter == 8)
 	{
-		parity = (DDRB & _BV(DATA));
+		oddity = (PINB & _BV(DATA));
 		++counter;
-		USART_Transmit('\n');//Ship notre data
-		if(accumulateur == 21)
-			PORTB ^= _BV(LED_1);
+		USART_Transmit(' ');//Ship notre data
+		USART_Transmit_int(accumulateur);
+		USART_Transmit(' ');//Ship notre data
+		/*if(accumulateur == 21)*/
 			
-		PORTB ^= _BV(LED_2);
+		PORTB ^= _BV(LED_1);
 	}
 	else if(is_accumulating && counter == 9)
 	{
 		is_accumulating = false;
 		counter = 0;
-		if(!(DDRB & _BV(DATA))) //Stop bit, doit être égale à 1
+		if(!(PINB & _BV(DATA))) //Stop bit, doit être égale à 1
 			PORTB ^= _BV(LED_3);
 	}
-	/*//Enable interrupt*/
-	SREG |= 0x80;
 }
 /*bool volatile wait_otter;*/
 /*ISR(TIMER1_COMPA_vect)*/
@@ -184,7 +178,8 @@ int main()
 	//Enable external interrupt on INT0
 	EIMSK |= _BV(INT0);
 	//Interrupt on INT0 with falling level
-	EICRA |= (_BV(ISC01));
+	EICRA |= _BV(ISC01);
+	EICRA &= ~_BV(ISC00);
 
 	//Sert à initialiser l'envois depuis l'host
 	/*PORTD |= _BV(CLOCK); //Met la clock à 1*/
