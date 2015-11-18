@@ -46,29 +46,16 @@ ISR(USART_UDRE_vect)
 	if(head_fifo == back_fifo) //Disable interupt when fifo is empty
 		UCSR0B &= ~(1 << UDRIE0);
 }
-ISR(INT0_vect)
+ISR(PCINT0_vect)
 {
-	if(PINB & _BV(DATA)) //On a 1 dans les datas
-		accumulateur |= _BV(counter);
-	else //On a un 0
-		accumulateur &= ~_BV(counter);
-	++counter;
-	if(counter == 8)
-	{
-		counter = 0;
-		USART_Transmit(accumulateur);//On ship le block de huit
-	}
+	USART_Transmit(PINB);
 }
 int main()
 {
 	USART_Init(MYUBRR);
 
-	//Enable external interrupt on INT0
-	EIMSK |= _BV(INT0);
-
-	//Interrupt on INT0 with falling level
-	EICRA |= _BV(ISC01);
-	EICRA &= ~_BV(ISC00);
+	PCICR |= _BV(PCIE0); //Enable interrupt on PORTB
+	PCMSK0 = ~0; //Enable on whole PORTB and not a specifique pin
 
 	//Enable intterrupt
 	SREG = 0x80;
