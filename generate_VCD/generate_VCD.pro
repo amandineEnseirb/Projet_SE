@@ -7,7 +7,8 @@ CONFIG += c++11
 SOURCES += main.cpp \
     settings.cpp \
     uart_gestion.cpp \
-    write_file.cpp
+    write_file.cpp \
+    calculateTimestamp.cpp
 
 include(deployment.pri)
 qtcAddDeployment()
@@ -15,5 +16,7 @@ qtcAddDeployment()
 HEADERS += \
     settings.h \
     uart_gestion.h \
-    write_file.h
+    write_file.h \
+    VCD_definitions.h \
+    calculateTimestamp.h
 
