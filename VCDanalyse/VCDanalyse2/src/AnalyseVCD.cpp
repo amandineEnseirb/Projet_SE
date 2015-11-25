@@ -1,5 +1,149 @@
 #include "../include/AnalyseVCD.h"
 
+// Unshifted characters
+char unshifted[][2] = {
+{0x0d,9},
+{0x0e,'|'},
+{0x15,'q'},
+{0x16,'1'},
+{0x1a,'z'},
+{0x1b,'s'},
+{0x1c,'a'},
+{0x1d,'w'},
+{0x1e,'2'},
+{0x21,'c'},
+{0x22,'x'},
+{0x23,'d'},
+{0x24,'e'},
+{0x25,'4'},
+{0x26,'3'},
+{0x29,' '},
+{0x2a,'v'},
+{0x2b,'f'},
+{0x2c,'t'},
+{0x2d,'r'},
+{0x2e,'5'},
+{0x31,'n'},
+{0x32,'b'},
+{0x33,'h'},
+{0x34,'g'},
+{0x35,'y'},
+{0x36,'6'},
+{0x39,','},
+{0x3a,'m'},
+{0x3b,'j'},
+{0x3c,'u'},
+{0x3d,'7'},
+{0x3e,'8'},
+{0x41,','},
+{0x42,'k'},
+{0x43,'i'},
+{0x44,'o'},
+{0x45,'0'},
+{0x46,'9'},
+{0x49,'.'},
+{0x4a,'-'},
+{0x4b,'l'},
+{0x4c,'ø'},
+{0x4d,'p'},
+{0x4e,'+'},
+{0x52,'æ'},
+{0x54,'å'},
+{0x55,'\\'},
+{0x5a,13},
+{0x5b,'¨'},
+{0x5d,'\''},
+{0x61,'<'},
+{0x66,8},
+{0x69,'1'},
+{0x6b,'4'},
+{0x6c,'7'},
+{0x70,'0'},
+{0x71,','},
+{0x72,'2'},
+{0x73,'5'},
+{0x74,'6'},
+{0x75,'8'},
+{0x79,'+'},
+{0x7a,'3'},
+{0x7b,'-'},
+{0x7c,'*'},
+{0x7d,'9'},
+{0,0}
+};
+
+// Shifted characters
+char shifted[][2] = {
+{0x0d,9},
+{0x0e,'§'},
+{0x15,'Q'},
+{0x16,'!'},
+{0x1a,'Z'},
+{0x1b,'S'},
+{0x1c,'A'},
+{0x1d,'W'},
+{0x1e,'"'},
+{0x21,'C'},
+{0x22,'X'},
+{0x23,'D'},
+{0x24,'E'},
+{0x25,'¤'},
+{0x26,'#'},
+{0x29,' '},
+{0x2a,'V'},
+{0x2b,'F'},
+{0x2c,'T'},
+{0x2d,'R'},
+{0x2e,'%'},
+{0x31,'N'},
+{0x32,'B'},
+{0x33,'H'},
+{0x34,'G'},
+{0x35,'Y'},
+{0x36,'&'},
+{0x39,'L'},
+{0x3a,'M'},
+{0x3b,'J'},
+{0x3c,'U'},
+{0x3d,'/'},
+{0x3e,'('},
+{0x41,';'},
+{0x42,'K'},
+{0x43,'I'},
+{0x44,'O'},
+{0x45,'='},
+{0x46,')'},
+{0x49,':'},
+{0x4a,'_'},
+{0x4b,'L'},
+{0x4c,'Ø'},
+{0x4d,'P'},
+{0x4e,'?'},
+{0x52,'Æ'},
+{0x54,'Å'},
+{0x55,'`'},
+{0x5a,13},
+{0x5b,'^'},
+{0x5d,'*'},
+{0x61,'>'},
+{0x66,8},
+{0x69,'1'},
+{0x6b,'4'},
+{0x6c,'7'},
+{0x70,'0'},
+{0x71,','},
+{0x72,'2'},
+{0x73,'5'},
+{0x74,'6'},
+{0x75,'8'},
+{0x79,'+'},
+{0x7a,'3'},
+{0x7b,'-'},
+{0x7c,'*'},
+{0x7d,'9'},
+{0,0}
+};
+
 AnalyseVCD::AnalyseVCD(const string VCD_file_name, const string init_file_name, const string output_file_name)
 {
     read_init_file(init_file_name);
@@ -54,12 +198,35 @@ int AnalyseVCD::Add_Var(const Var::Var_Types var_type, const size_t var_size, co
 
 void AnalyseVCD::read_init_file(const string& init_file_name)
 {
-    /* initialise les clock_names et data_names pour pouvoir analyser les signaux*/
-        clock_id = '$';
+	char buf[256];
+    int sizeString = GetPrivateProfileString("clock", "id", "", buf, 8, init_file_name.c_str());
+    if(sizeString == 0)
+    {
+        cerr<<"No clock found in init file : "<<init_file_name<<endl;
+        cout<<"End of program. Enter any key to kill it.";
+        cin>>buf;
+        exit(EXIT_FAILURE);
+    }
+    clock_id = buf[0];
 
-        data_ids.push_back('%');
-        data_ids.push_back('&');
+    for(int i = 0; i<7; i++)
+    {
+        string buf_ind = "id";
+        char ind = '0' + i;
+        buf_ind.append(1, ind);
+        sizeString = GetPrivateProfileString("data", buf_ind.c_str(), "", buf, 8, init_file_name.c_str());
+        cout<<buf_ind<<" "<<sizeString<<endl;
+        if(sizeString > 0)
+            data_ids.push_back(buf[0]);
+    }
 
+   // sizeString = GetPrivateProfileString("data", buf_ind.c_str(), "", buf, 256, init_file_name.c_str());
+   // vcd_file_name = buf;
+
+    /*clock_id = '$';
+    data_ids.push_back('%');
+    data_ids.push_back('&');
+    */
 }
 
 void AnalyseVCD::read_VCD_file(const string& VCD_file_name)
@@ -68,6 +235,9 @@ void AnalyseVCD::read_VCD_file(const string& VCD_file_name)
     if(!vcd_file.is_open())
     {
         cerr<<"Warning ! AnalyseVCD::read_VCD_file ; File not found : "<< VCD_file_name<<endl;
+        cout<<"End of program. Enter any key to kill it.";
+        string buf;
+        cin>>buf;
         exit(EXIT_FAILURE);
     }
 
@@ -75,6 +245,9 @@ void AnalyseVCD::read_VCD_file(const string& VCD_file_name)
     {
         cerr<<"Warning ! AnalyseVCD::read_VCD_file ; No header """<<VCD_ENDDEFINITION_SYMBOLE<<""" detected in file : "<< VCD_file_name<<endl;
         vcd_file.close();
+        cout<<"End of program. Enter any key to kill it.";
+        string buf;
+        cin>>buf;
         exit(EXIT_FAILURE);
     }
 
@@ -82,6 +255,9 @@ void AnalyseVCD::read_VCD_file(const string& VCD_file_name)
     {
         cerr<<"Warning ! AnalyseVCD::read_VCD_file ; No """<<VCD_DUMPVARS_SYMBOLE<<""" or no """<<VCD_END_SYMBOLE<<""" symbole detected in file : "<< VCD_file_name<<endl;
         vcd_file.close();
+        cout<<"End of program. Enter any key to kill it.";
+        string buf;
+        cin>>buf;
         exit(EXIT_FAILURE);
     }
     vcd_file.close();
@@ -94,16 +270,24 @@ void AnalyseVCD::analyse_VCD_data(const string& output_file_name)
     if(!output_file.is_open())
     {
         cerr<<"Warning ! AnalyseVCD::analyse_VCD_data - File can't be written : "<< output_file_name<<endl;
+        cout<<"End of program. Enter any key to kill it.";
+        string buf;
+        cin>>buf;
         exit(EXIT_FAILURE);
     }
 
     vector<vector<Var::Sample>> data_on_clock_stream; //data[0] = clock and data[i] are the data variables
     vector<size_t> var_pos;
     if(!getDataOnClock(data_on_clock_stream, false, var_pos))
+    {
+        cout<<"End of program. Enter any key to kill it.";
+        string buf;
+        cin>>buf;
         exit(EXIT_FAILURE);
+    }
 
     vector<vector<char>> data_from_protocole;
-    getDataInCommunicationProtocole(data_on_clock_stream, B1_Low, 8, B1_High, data_from_protocole);
+    getDataInCommunicationProtocole(data_on_clock_stream, B1_Low, 8, 1, B1_High, data_from_protocole);
 
     vector<vector<char>> data_ascii;
     getAsciiFromScanCode(data_from_protocole, data_ascii);
@@ -127,11 +311,15 @@ void AnalyseVCD::analyse_VCD_data(const string& output_file_name)
         buf.append(_listeVar[pos].Getvar_reference());
         buf.append(" flow is :\n\r");
         output_file.write(buf.c_str(), buf.size());
-        for(size_t j=0; j<data_ascii[i].size(); j++)
+        cout<<buf;
+        for(size_t j=0; j<data_ascii[i].size(); j++){
             output_file.put(data_ascii[i][j]);
+            cout<<data_ascii[i][j];
+        }
 
         if((i+1) <data_ascii.size())
             output_file.write("\n\n\n", 3);
+            cout<<endl<<endl<<endl;
     }
 
     cout<<"VCD data analyzed succesfully !"<<endl;
@@ -443,10 +631,10 @@ bool AnalyseVCD::getDataOnClock(vector<vector<Var::Sample>>& data_stream, const 
     return true;
 }
 
-bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& data_on_clock_stream, BitStartStopType bit_start_type, size_t data_length, BitStartStopType bit_stop_type, vector<vector<char>>& data_from_protocole)
+bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& data_on_clock_stream, BitStartStopType bit_start_type, size_t data_length, size_t parity_length, BitStartStopType bit_stop_type, vector<vector<char>>& data_from_protocole)
 {
     Var::Logic_Value datum = Var::Low;
-    bool isbitStartDone = false, isbitStopDone = false, areDataDone = false;
+    bool isbitStartDone = false, isbitParityDone = false, isbitStopDone = false, areDataDone = false;
     size_t data_size_counter = 0;
     char buffer = 0;
 
@@ -463,6 +651,7 @@ bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& da
                 isbitStartDone = false;
                 areDataDone = false;
                 isbitStopDone = false;
+                isbitParityDone = false;
                 data_size_counter = 0;
                 buffer = 0;
             }
@@ -479,7 +668,7 @@ bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& da
                         break;
                     case B2_High :
                         cerr<<"AnalyseVCD::getDataInCommunicationProtocole : 2 bits of start are not supported for now !"<<endl;
-                        exit(1);
+                        exit(EXIT_FAILURE);
                         break;
                     case B1_Low :
                         if(datum == Var::Low)
@@ -487,7 +676,7 @@ bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& da
                         break;
                     case B2_Low :
                         cerr<<"AnalyseVCD::getDataInCommunicationProtocole : 2 bits of start are not supported for now !"<<endl;
-                        exit(1);
+                        exit(EXIT_FAILURE);
                         break;
                 }
                 continue;
@@ -507,6 +696,12 @@ bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& da
                 continue;
             }
 
+            if(isbitParityDone == false)
+            {
+                isbitParityDone = true;
+                continue;
+            }
+
             if(isbitStopDone == false)
             {
                 switch(bit_stop_type)
@@ -517,7 +712,7 @@ bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& da
                         break;
                     case B2_High :
                         cerr<<"AnalyseVCD::getDataInCommunicationProtocole : 2 bits of stop are not supported for now !"<<endl;
-                        exit(1);
+                        exit(EXIT_FAILURE);
                         break;
                     case B1_Low :
                         if(datum == Var::Low)
@@ -525,7 +720,7 @@ bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& da
                         break;
                     case B2_Low :
                         cerr<<"AnalyseVCD::getDataInCommunicationProtocole : 2 bits of stop are not supported for now !"<<endl;
-                        exit(1);
+                        exit(EXIT_FAILURE);
                         break;
                 }
 
@@ -555,7 +750,7 @@ char AnalyseVCD::convertScanToAsciiCode(char ScanCode, bool isShift)
 void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole, vector<vector<char>>& data_ascii)
 {
     data_ascii.resize(data_from_protocole.size());
-    bool isShift = false;
+    bool isShift = false, isReleased = false;
 
     for(size_t id_stream = 0; id_stream < data_from_protocole.size(); id_stream++)
     {
@@ -568,6 +763,14 @@ void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole,
                 isShift = true;
                 continue;
             }
+            if(isReleased == false && isKeyReleased(stream[id_data]))
+            {
+                isReleased = true;
+                continue;
+            }
+            if(isReleased)
+                continue;
+
             data_ascii[id_stream].push_back(convertScanToAsciiCode(stream[id_data], isShift));
             if(isShift)
                 isShift = false;
@@ -578,6 +781,13 @@ void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole,
 bool AnalyseVCD::isShiftScanCode(unsigned char scanCode)
 {
     if(scanCode == 0x12)
+        return true;
+    return false;
+}
+
+bool AnalyseVCD::isKeyReleased(unsigned char scanCode)
+{
+    if(scanCode == 240)
         return true;
     return false;
 }

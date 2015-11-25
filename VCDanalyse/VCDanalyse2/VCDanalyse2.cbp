@@ -23,7 +23,12 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="include/AnalyseVCD.h" />
+		<Unit filename="include/VCD_definitions.h" />
+		<Unit filename="include/Var.h" />
 		<Unit filename="main.cpp" />
+		<Unit filename="src/AnalyseVCD.cpp" />
+		<Unit filename="src/Var.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

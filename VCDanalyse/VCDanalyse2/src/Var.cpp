@@ -33,6 +33,9 @@ Var::Var_Types Var::detect_var_type(const string& str_var_type)
         return Var_Types::WIRE;
 
     cerr<<str_var_type<<" has not been recognized as a type of variable."<<endl;
+    cout<<"End of program. Enter any key to kill it.";
+    string buf;
+    cin>>buf;
     exit(EXIT_FAILURE);
 }
 
