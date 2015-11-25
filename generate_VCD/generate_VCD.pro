@@ -10,8 +10,8 @@ SOURCES += main.cpp \
     write_file.cpp \
     calculateTimestamp.cpp
 
-include(deployment.pri)
-qtcAddDeployment()
+#include(deployment.pri)
+#qtcAddDeployment()
 
 HEADERS += \
     settings.h \

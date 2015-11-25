@@ -85,6 +85,7 @@ bool UART_gestion::CloseCOM(){
 
 //FONCTION DE LECTURE SUR LE PORT COM
 bool UART_gestion::ReadCOM(void *buffer, int nBytesToRead, int *pBytesRead){
+    cout << "lecture du port" << endl;
     return ReadFile(g_hCOM, buffer, nBytesToRead, (LPDWORD)pBytesRead, NULL);
     /*Les paramètres de la fonction ReadFile sont les suivants:
      * handle qui sert pour la COM

@@ -4,7 +4,11 @@ Write_file::Write_file(const string &s)
 {
     filename = s;
     cout << "ouverture du fichier de sortie" << endl;
-    file.open(filename, fstream::in|fstream::out);
+    file.open(filename, fstream::out);
+    if(file.is_open())
+        cout << "fichier ouvert" << endl;
+    else
+        exit(EXIT_FAILURE);
     //initialisation du tableau contenant les caractères d'identification des variables pour le VCD
     varIdentifiers.push_back(BIT_0_PORT);
     varIdentifiers.push_back(BIT_1_PORT);
@@ -64,8 +68,11 @@ void Write_file::initializeFileVariables(void){
 
 void Write_file::WriteByte(char* buff){
 
-    //on convertit l'octet à écrire en string
-    string byte = buff;
+    //on récupère les 8 bits de données
+    unsigned char byte = buff[0];
+
+    cout << "octet reçu: " << byte << endl;
+    cout << "ecriture de l'octet" << endl;
 
     //ecriture d'un octet dans le fichier, on n'écrit que les bits qui changent
 
@@ -78,8 +85,8 @@ void Write_file::WriteByte(char* buff){
         file << VCD_TIMESTAMP_SYMBOLE << (int)timestamp << endl;
 
         //ecriture de l'octet dans son intégralité
-        for (unsigned int i = 0; i < byte.size(); i++){
-            if(byte[i] == '0')
+        for (unsigned int i = 0; i < 8; i++){
+            if((byte>>i & 0x01) == 0)
                 file << VCD_VALUE_LOW << varIdentifiers[i] << endl;
             else
                 file << VCD_VALUE_HIGH << varIdentifiers[i] << endl;
@@ -96,11 +103,11 @@ void Write_file::WriteByte(char* buff){
         file << VCD_TIMESTAMP_SYMBOLE << (int)timestamp << endl;
 
         //on écrit uniquement les données qui ont changées
-        for(unsigned int i = 0; i < byte.size(); i++){
+        for(unsigned int i = 0; i < 8; i++){
 
-            if(byte[i] != previousByte[i]){
+            if((byte>>i & 0x01) != (previousByte>>i & 0x01)){
                 //alors on écrit
-                if(byte[i] == '0')
+                if((byte >>i & 0x01) == 0)
                     file << VCD_VALUE_LOW << varIdentifiers[i] << endl;
                 else
                     file << VCD_VALUE_HIGH << varIdentifiers[i] << endl;

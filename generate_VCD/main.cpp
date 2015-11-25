@@ -5,12 +5,14 @@
 #include "write_file.h"
 
 
-#define BUFF_SIZE   16
+#define BUFF_SIZE   1
 
 using namespace std;
 
 int main()
 {
+
+
     Settings* set_data = new Settings();
     UART_gestion* serial_com = new UART_gestion();
     Write_file* out_vcd_file = new Write_file("vcd_file.vcd");
@@ -32,7 +34,12 @@ int main()
         cout << "COM Serie ouverte et prete a l'emploi" << endl;
        //opération de lecture sur la com série
         while(1){
-            serial_com->ReadCOM(&buffer, 1, &nb_bytes_read);
+            if(_kbhit())
+                break;
+
+            cout << "appel de la fonction de lecture du port série" <<endl;
+            serial_com->ReadCOM(buffer, 1, &nb_bytes_read);
+            cout << "nombre de bits lus: " << nb_bytes_read << endl;
             if(nb_bytes_read != 0)
                 out_vcd_file->WriteByte(buffer);
         }
