@@ -1,0 +1,33 @@
+# depslib dependency file v1.0
+1448452019 source:c:\users\olivier\documents\github\projet_se\vcdanalyse\vcdanalyse2\main.cpp
+	<iostream>
+	<string>
+	"include/AnalyseVCD.h"
+
+1448451965 c:\users\olivier\documents\github\projet_se\vcdanalyse\vcdanalyse2\include\analysevcd.h
+	<string>
+	<vector>
+	<fstream>
+	<iostream>
+	<stdlib.h>
+	"Var.h"
+	"VCD_definitions.h"
+	"ScanCode_definitions.h"
+
+1448451997 c:\users\olivier\documents\github\projet_se\vcdanalyse\vcdanalyse2\include\var.h
+	<string>
+	<stdlib.h>
+	<iostream>
+	<vector>
+	"VCD_definitions.h"
+
+1448451907 c:\users\olivier\documents\github\projet_se\vcdanalyse\vcdanalyse2\include\vcd_definitions.h
+
+1448452500 c:\users\olivier\documents\github\projet_se\vcdanalyse\vcdanalyse2\include\scancode_definitions.h
+
+1448452630 source:c:\users\olivier\documents\github\projet_se\vcdanalyse\vcdanalyse2\src\analysevcd.cpp
+	"../include/AnalyseVCD.h"
+
+1448452093 source:c:\users\olivier\documents\github\projet_se\vcdanalyse\vcdanalyse2\src\var.cpp
+	"../include/Var.h"
+

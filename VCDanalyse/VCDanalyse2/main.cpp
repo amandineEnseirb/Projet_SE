@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 
-#include "AnalyseVCD.h"
+#include "include/AnalyseVCD.h"
 
 using namespace std;
 

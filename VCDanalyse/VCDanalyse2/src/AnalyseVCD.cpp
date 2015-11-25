@@ -1,4 +1,4 @@
-#include "AnalyseVCD.h"
+#include "../include/AnalyseVCD.h"
 
 AnalyseVCD::AnalyseVCD(const string VCD_file_name, const string init_file_name, const string output_file_name)
 {
@@ -106,7 +106,7 @@ void AnalyseVCD::analyse_VCD_data(const string& output_file_name)
     getDataInCommunicationProtocole(data_on_clock_stream, B1_Low, 8, B1_High, data_from_protocole);
 
     vector<vector<char>> data_ascii;
-  //  getAsciiFromScanCode(data_from_protocole, data_ascii);
+    getAsciiFromScanCode(data_from_protocole, data_ascii);
 
     size_t pos;
     string buf;
@@ -534,6 +534,7 @@ bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& da
             }
         }
     }
+    return true;
 }
 
 char AnalyseVCD::convertScanToAsciiCode(char ScanCode, bool isShift)
