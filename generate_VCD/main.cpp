@@ -7,11 +7,15 @@
 
 #define BUFF_SIZE   1
 
+//#define MAIN
+#define TEST_VCD
+
 using namespace std;
 
 int main()
 {
 
+#ifdef MAIN
 
     Settings* set_data = new Settings();
     UART_gestion* serial_com = new UART_gestion();
@@ -53,5 +57,45 @@ int main()
     delete serial_com;
     delete out_vcd_file;
     return 0;
+
+#endif
+
+#ifdef TEST_VCD
+
+    Write_file* out_vcd_file = new Write_file("test_vcd_file.vcd");
+
+    char buffer[] = {0x01,
+                     0x00,
+                     0x01,
+                     0x00,
+                     0x01,
+                     0x00,
+                     0x01,
+                     0x00,
+                     0x01,
+                     0x02,
+                     0x03,
+                     0x00,
+                     0x01,
+                     0x02,
+                     0x03,
+                     0x00,
+                     0x01,
+                     0x02,
+                     0x03,
+                     0x02,
+                     0x03,
+                     0x02,
+                     0x03};
+
+
+    for(int i = 0; i < 23; i++)
+        out_vcd_file->WriteByte(buffer+i);
+
+
+    delete out_vcd_file;
+    return 0;
+
+#endif
 }
 
