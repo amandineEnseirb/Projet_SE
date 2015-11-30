@@ -34,7 +34,7 @@ private:
     DCB g_dcb =
     {
         sizeof(DCB),            //DCBlength, taille de la structure
-        CBR_9600,               //BaudRate, peut aller jusqu'à 256000 bps
+        CBR_300,               //BaudRate, peut aller jusqu'à 256000 bps
         TRUE,                   //fBinary, doit être à TRUE pour pouvoir lire une trame binaire (windows ne traite pas du binaire par défaut)
         FALSE,                  //fParity, pas de contrôle de parité
         FALSE,                  //fOutxCtsFlow, output flow control
@@ -76,7 +76,7 @@ public:
     bool OpenCOM(int nId);
     bool CloseCOM(void);
     bool ReadCOM(void* buffer, int nBytesToRead, int* pBytesRead);
-    //bool WriteCOM(void* buffer, int nBytesToWrite, int* pBytesWritten);
+    bool WriteCOM(void* buffer, int nBytesToWrite, int* pBytesWritten);
     void SetDcbStructure(int _baud, int _nbBits, int _nbStop, int _parity);
 };
 

@@ -95,6 +95,12 @@ bool UART_gestion::ReadCOM(void *buffer, int nBytesToRead, int *pBytesRead){
      * paramètre non utile dans notre cas*/
 }
 
+//FONCTION D'ECRITURE SUR LE PORT COM
+bool UART_gestion::WriteCOM(void *buffer, int nBytesToWrite, int *pBytesWritten){
+    cout << "ecriture du port" << endl;
+    return WriteFile(g_hCOM, buffer, nBytesToWrite, (LPDWORD)pBytesWritten, NULL);
+}
+
 //FONCTION DE REMPLISSAGE DE LA STRUCTURE DE CONFIGURATION DU PORT COM AVEC DONNEES DE LA COM
 void UART_gestion::SetDcbStructure(int _baud, int _nbBits, int _nbStop, int _parity){
     //configuration du BaudRate
