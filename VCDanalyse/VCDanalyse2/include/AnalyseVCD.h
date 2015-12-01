@@ -58,9 +58,11 @@ class AnalyseVCD
         bool getDataInCommunicationProtocole(vector<vector<Var::Sample>>& data_on_clock_stream, BitStartStopType bit_start_type, size_t data_length, size_t parity_length, BitStartStopType bit_stop_type, vector<vector<char>>& data_from_protocole);
 
         char convertScanToAsciiCode(char ScanCode, bool isShift);
-        void getAsciiFromScanCode(vector<vector<char>>& data_from_protocole, vector<vector<char>>& data_ascii);
+        void getAsciiFromScanCode(vector<vector<char>>& data_from_protocole, vector<vector<char>>& data_ascii, bool isInverted);
         bool isShiftScanCode(unsigned char scanCode);
         bool isKeyReleased(unsigned char scanCode);
+
+        char inverseByte(const char byteIn);
 
     protected:
     private:

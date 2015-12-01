@@ -290,7 +290,7 @@ void AnalyseVCD::analyse_VCD_data(const string& output_file_name)
     getDataInCommunicationProtocole(data_on_clock_stream, B1_Low, 8, 1, B1_High, data_from_protocole);
 
     vector<vector<char>> data_ascii;
-    getAsciiFromScanCode(data_from_protocole, data_ascii);
+    getAsciiFromScanCode(data_from_protocole, data_ascii, true);
 
     size_t pos;
     string buf;
@@ -747,10 +747,11 @@ char AnalyseVCD::convertScanToAsciiCode(char ScanCode, bool isShift)
         return unshifted[i][1];
 }
 
-void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole, vector<vector<char>>& data_ascii)
+void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole, vector<vector<char>>& data_ascii, bool isInverted)
 {
     data_ascii.resize(data_from_protocole.size());
     bool isShift = false, isReleased = false;
+    char buf;
 
     for(size_t id_stream = 0; id_stream < data_from_protocole.size(); id_stream++)
     {
@@ -771,7 +772,11 @@ void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole,
             if(isReleased)
                 continue;
 
-            data_ascii[id_stream].push_back(convertScanToAsciiCode(stream[id_data], isShift));
+            if(isInverted)
+                buf = inverseByte(stream[id_data]);
+            else
+                buf = stream[id_data];
+            data_ascii[id_stream].push_back(convertScanToAsciiCode(buf, isShift));
             if(isShift)
                 isShift = false;
         }
@@ -791,3 +796,18 @@ bool AnalyseVCD::isKeyReleased(unsigned char scanCode)
         return true;
     return false;
 }
+
+char AnalyseVCD::inverseByte(const char byteIn)
+{
+    char byteOut = 0;
+
+    for(int i = 0; i<8; i++)
+    {
+        if((byteIn>>i)&0x01)
+        {
+            byteOut |= 1 << (7-i);
+        }
+    }
+    return byteOut;
+}
+
