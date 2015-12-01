@@ -759,24 +759,29 @@ void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole,
 
         for(size_t id_data = 0; id_data < stream.size(); id_data++)
         {
-            if(isShift == false && isShiftScanCode(inverseByte(stream[id_data])))
+            if(isInverted)
+                buf = inverseByte(stream[id_data]);
+            else
+                buf = stream[id_data];
+
+            if(isShift == false && isShiftScanCode(buf))
             {
                 isShift = true;
                 continue;
             }
-            if(isReleased == false && isKeyReleased(inverseByte(stream[id_data])))
+            if(isReleased == false && isKeyReleased(buf))
             {
                 isReleased = true;
                 continue;
             }
             if(isReleased)
+            {
+                isReleased = false;
                 continue;
+            }
 
-            if(isInverted)
-                buf = inverseByte(stream[id_data]);
-            else
-                buf = stream[id_data];
             data_ascii[id_stream].push_back(convertScanToAsciiCode(buf, isShift));
+
             if(isShift)
                 isShift = false;
         }
