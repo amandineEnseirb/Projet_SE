@@ -46,7 +46,7 @@ int main()
 
     AnalyseVCD a_vcd(vcd_file_name, init_file_name, output_file_name);
 
-    cout<<"End of program. Enter any key to kill it.";
-    cin>>buf;
+    cout<<"End of program."<<endl;
+    system("pause");
     return 0;
 }

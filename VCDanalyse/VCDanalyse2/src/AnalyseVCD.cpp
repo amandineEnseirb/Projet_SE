@@ -776,14 +776,17 @@ void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole,
             }
             if(isReleased)
             {
+                if(isShift == true && isShiftScanCode(buf))
+                    isShift = false;
+
                 isReleased = false;
                 continue;
             }
 
             data_ascii[id_stream].push_back(convertScanToAsciiCode(buf, isShift));
 
-            if(isShift)
-                isShift = false;
+           // if(isShift)
+            //    isShift = false;
         }
     }
 }
