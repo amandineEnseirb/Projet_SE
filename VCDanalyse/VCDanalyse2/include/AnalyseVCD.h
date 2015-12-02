@@ -8,11 +8,12 @@
 #include <stdlib.h>
 #include "Var.h"
 #include "VCD_definitions.h"
-#include "ScanCode_definitions.h"
+#include <windows.h>
 
 using namespace std;
 
 enum BitStartStopType{B1_High, B2_High, B1_Low, B2_Low};
+enum KEYBOARD_LAYOUT {QWERTY = 1, AZERTY = 2};
 
 class AnalyseVCD
 {
@@ -55,11 +56,16 @@ class AnalyseVCD
         void display_FallingEdges();
 
         bool getDataOnClock(vector<vector<Var::Sample>>& data_stream, const bool onRisingEdge, vector<size_t>& pos);
-        bool getDataInCommunicationProtocole(vector<vector<Var::Sample>>& data_on_clock_stream, BitStartStopType bit_start_type, size_t data_length, BitStartStopType bit_stop_type, vector<vector<char>>& data_from_protocole);
+        bool getDataInCommunicationProtocole(vector<vector<Var::Sample>>& data_on_clock_stream, BitStartStopType bit_start_type, size_t data_length, size_t parity_length, BitStartStopType bit_stop_type, vector<vector<char>>& data_from_protocole);
 
-        char convertScanToAsciiCode(char ScanCode, bool isShift);
-        void getAsciiFromScanCode(vector<vector<char>>& data_from_protocole, vector<vector<char>>& data_ascii);
+        char convertScanToAsciiCode(char ScanCode, bool isShift, KEYBOARD_LAYOUT key_lay, bool isVerNum);
+        void getAsciiFromScanCode(vector<vector<char>>& data_from_protocole, vector<vector<char>>& data_ascii, bool isInverted, KEYBOARD_LAYOUT key_lay);
         bool isShiftScanCode(unsigned char scanCode);
+        bool isCapsScanCode(unsigned char scanCode);
+        bool isKeyReleased(unsigned char scanCode);
+        bool isVerNumScanCode(unsigned char scanCode);
+
+        char inverseByte(const char byteIn);
 
     protected:
     private:

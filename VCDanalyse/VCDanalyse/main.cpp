@@ -5,18 +5,28 @@
 
 using namespace std;
 
+
 int main()
 {
     cout <<"Launch !"<<endl;
 
-    //const string vcd_file_name = "exemple.vcd";
+   /* char scanCode = 0x15;
+
+    char uns = convertScanToAsciiCode(scanCode, false);
+    char s = convertScanToAsciiCode(scanCode, true);
+
+    cout<<"Code u = "<<uns<<endl;
+    cout<<"Code s = "<<s<<endl;
+
+   */// const string vcd_file_name = "exemple.vcd";
     const string vcd_file_name = "test_clavier.vcd";
     const string init_file_name = "init.ini";
     const string output_file_name = "out.txt";
 
     AnalyseVCD a_vcd(vcd_file_name, init_file_name, output_file_name);
 
-    cout<<endl;
+
+  /*  cout<<endl;
     a_vcd.show_listeVar();
     cout<<endl;
 
@@ -41,5 +51,6 @@ int main()
 
 
     cout <<endl<< "end" << endl;
+  */
     return 0;
 }

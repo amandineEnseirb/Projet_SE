@@ -30,7 +30,7 @@ private:
     double timestamp = 0;
     bool isFirstByte = true;
     vector<char> varIdentifiers;
-    string previousByte;
+    unsigned char previousByte;
 
 public:
     Write_file(const string& s);
@@ -39,7 +39,7 @@ public:
 
     void writeHeadFile(void);
     void initializeFileVariables(void);
-    void WriteByte(char* buff);
+    void WriteByte(unsigned char buff);
 };
 
 #endif // WRITE_FILE_H

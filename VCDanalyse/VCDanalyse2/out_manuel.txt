@@ -1,7 +1,7 @@
 Clock is clock
 Var data1 flow is :
-A_
+qe
 
 
 Var data2 flow is :
-1*
+T
