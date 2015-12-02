@@ -1,147 +1,147 @@
 #include "../include/AnalyseVCD.h"
 
 // Unshifted characters
-char unshifted[][2] = {
-{0x0d,9},
-{0x0e,'|'},
-{0x15,'q'},
-{0x16,'1'},
-{0x1a,'z'},
-{0x1b,'s'},
-{0x1c,'a'},
-{0x1d,'w'},
-{0x1e,'2'},
-{0x21,'c'},
-{0x22,'x'},
-{0x23,'d'},
-{0x24,'e'},
-{0x25,'4'},
-{0x26,'3'},
-{0x29,' '},
-{0x2a,'v'},
-{0x2b,'f'},
-{0x2c,'t'},
-{0x2d,'r'},
-{0x2e,'5'},
-{0x31,'n'},
-{0x32,'b'},
-{0x33,'h'},
-{0x34,'g'},
-{0x35,'y'},
-{0x36,'6'},
-{0x39,','},
-{0x3a,'m'},
-{0x3b,'j'},
-{0x3c,'u'},
-{0x3d,'7'},
-{0x3e,'8'},
-{0x41,','},
-{0x42,'k'},
-{0x43,'i'},
-{0x44,'o'},
-{0x45,'0'},
-{0x46,'9'},
-{0x49,'.'},
-{0x4a,'-'},
-{0x4b,'l'},
-{0x4c,'ø'},
-{0x4d,'p'},
-{0x4e,'+'},
-{0x52,'æ'},
-{0x54,'å'},
-{0x55,'\\'},
-{0x5a,13},
-{0x5b,'¨'},
-{0x5d,'\''},
-{0x61,'<'},
-{0x66,8},
-{0x69,'1'},
-{0x6b,'4'},
-{0x6c,'7'},
-{0x70,'0'},
-{0x71,','},
-{0x72,'2'},
-{0x73,'5'},
-{0x74,'6'},
-{0x75,'8'},
-{0x79,'+'},
-{0x7a,'3'},
-{0x7b,'-'},
-{0x7c,'*'},
-{0x7d,'9'},
-{0,0}
+char unshifted[][3] = { //col 0 = ScanCode, col 1 = QWERTY layout, col 2 = AZERTY layout
+{0x0d,'\t', '\t'},
+{0x0e,'~', '²'},
+{0x15,'q', 'a'},
+{0x16,'1', '&'},
+{0x1a,'z', 'w'},
+{0x1b,'s', 's'},
+{0x1c,'a', 'q'},
+{0x1d,'w', 'z'},
+{0x1e,'2', 'é'},
+{0x21,'c', 'c'},
+{0x22,'x', 'x'},
+{0x23,'d', 'd'},
+{0x24,'e', 'e'},
+{0x25,'4', '\''},
+{0x26,'3', '"'},
+{0x29,' ', ' '},
+{0x2a,'v', 'v'},
+{0x2b,'f', 'f'},
+{0x2c,'t', 't'},
+{0x2d,'r', 'r'},
+{0x2e,'5', '('},
+{0x31,'n', 'n'},
+{0x32,'b', 'b'},
+{0x33,'h', 'h'},
+{0x34,'g', 'g'},
+{0x35,'y', 'y'},
+{0x36,'6', '-'},
+{0x39,',', ','}, //strange,not sure
+{0x3a,'m', ','},
+{0x3b,'j', 'j'},
+{0x3c,'u', 'u'},
+{0x3d,'7', 'è'},
+{0x3e,'8', '_'},
+{0x41,'<', ';'},
+{0x42,'k', 'k'},
+{0x43,'i', 'i'},
+{0x44,'o', 'o'},
+{0x45,'0', 'à'},
+{0x46,'9', 'ç'},
+{0x49,'>', ':'},
+{0x4a,'?', '!'},
+{0x4b,'l', 'l'},
+{0x4c,':', 'm'},
+{0x4d,'p', 'p'},
+{0x4e,'-', ')'},
+{0x52,'"', 'ù'},
+{0x54,'[', '^'},
+{0x55,'+', '='},
+{0x5a,'\n', '\n'}, //enter key
+{0x5b,'}', '$'},
+{0x5d,'|', '*'},
+{0x61,'<', '<'},
+{0x66,8, 8}, //backspace key
+{0x69,'1', '1'},
+{0x6b,'4', '4'},
+{0x6c,'7', '7'},
+{0x70,'0', '0'},
+{0x71,',', '.'},
+{0x72,'2', '2'},
+{0x73,'5', '5'},
+{0x74,'6', '6'},
+{0x75,'8', '8'},
+{0x79,'+', '+'},
+{0x7a,'3', '3'},
+{0x7b,'-', '-'},
+{0x7c,'*', '*'},
+{0x7d,'9', '9'},
+{0,0} //needed to stop the research
 };
 
 // Shifted characters
-char shifted[][2] = {
-{0x0d,9},
-{0x0e,'§'},
-{0x15,'Q'},
-{0x16,'!'},
-{0x1a,'Z'},
-{0x1b,'S'},
-{0x1c,'A'},
-{0x1d,'W'},
-{0x1e,'"'},
-{0x21,'C'},
-{0x22,'X'},
-{0x23,'D'},
-{0x24,'E'},
-{0x25,'¤'},
-{0x26,'#'},
-{0x29,' '},
-{0x2a,'V'},
-{0x2b,'F'},
-{0x2c,'T'},
-{0x2d,'R'},
-{0x2e,'%'},
-{0x31,'N'},
-{0x32,'B'},
-{0x33,'H'},
-{0x34,'G'},
-{0x35,'Y'},
-{0x36,'&'},
-{0x39,'L'},
-{0x3a,'M'},
-{0x3b,'J'},
-{0x3c,'U'},
-{0x3d,'/'},
-{0x3e,'('},
-{0x41,';'},
-{0x42,'K'},
-{0x43,'I'},
-{0x44,'O'},
-{0x45,'='},
-{0x46,')'},
-{0x49,':'},
-{0x4a,'_'},
-{0x4b,'L'},
-{0x4c,'Ø'},
-{0x4d,'P'},
-{0x4e,'?'},
-{0x52,'Æ'},
-{0x54,'Å'},
-{0x55,'`'},
-{0x5a,13},
-{0x5b,'^'},
-{0x5d,'*'},
-{0x61,'>'},
-{0x66,8},
-{0x69,'1'},
-{0x6b,'4'},
-{0x6c,'7'},
-{0x70,'0'},
-{0x71,','},
-{0x72,'2'},
-{0x73,'5'},
-{0x74,'6'},
-{0x75,'8'},
-{0x79,'+'},
-{0x7a,'3'},
-{0x7b,'-'},
-{0x7c,'*'},
-{0x7d,'9'},
-{0,0}
+char shifted[][3] = { //col 0 = ScanCode, col 1 = QWERTY layout, col 2 = AZERTY layout
+{0x0d, '\t', '\t'},
+{0x0e,'\'', '²'},
+{0x15,'Q', 'A'},
+{0x16,'!', '1'},
+{0x1a,'Z', 'W'},
+{0x1b,'S', 'S'},
+{0x1c,'A', 'Q'},
+{0x1d,'W', 'Z'},
+{0x1e,'@', '2'},
+{0x21,'C', 'C'},
+{0x22,'X', 'X'},
+{0x23,'D', 'D'},
+{0x24,'E', 'E'},
+{0x25,'$', '4'},
+{0x26,'#', '3'},
+{0x29,' ', ' '},
+{0x2a,'V', 'V'},
+{0x2b,'F', 'F'},
+{0x2c,'T', 'T'},
+{0x2d,'R', 'R'},
+{0x2e,'%', '5'},
+{0x31,'N', 'N'},
+{0x32,'B', 'B'},
+{0x33,'H', 'H'},
+{0x34,'G', 'G'},
+{0x35,'Y', 'Y'},
+{0x36,'^', '6'},
+{0x39,'L', 'L'},
+{0x3a,'M', '?'},
+{0x3b,'J', 'J'},
+{0x3c,'U', 'U'},
+{0x3d,'&', '7'},
+{0x3e,'*', '8'},
+{0x41,'<', '.'},
+{0x42,'K', 'K'},
+{0x43,'I', 'I'},
+{0x44,'O', 'O'},
+{0x45,')', '0'},
+{0x46,'(', '9'},
+{0x49,'>', '/'},
+{0x4a,'/', '§'},
+{0x4b,'L', 'L'},
+{0x4c,';', 'M'},
+{0x4d,'P', 'P'},
+{0x4e,'_', '°'},
+{0x52,'\'', 'µ'},
+{0x54,'{', '¨'},
+{0x55,'=', '+'},
+{0x5a,13, 13}, //enter key
+{0x5b,']', '£'},
+{0x5d,'\\', 'µ'},
+{0x61,'>', '>'},
+{0x66,8, 8}, //backspace key
+{0x69,'1', '1'},
+{0x6b,'4', '4'},
+{0x6c,'7', '7'},
+{0x70,'0', '0'},
+{0x71,',', '.'},
+{0x72,'2', '2'},
+{0x73,'5', '5'},
+{0x74,'6', '6'},
+{0x75,'8', '8'},
+{0x79,'+', '+'},
+{0x7a,'3', '3'},
+{0x7b,'-', '-'},
+{0x7c,'*', '*'},
+{0x7d,'9', '9'},
+{0,0} //needed to stop research
 };
 
 AnalyseVCD::AnalyseVCD(const string VCD_file_name, const string init_file_name, const string output_file_name)
@@ -290,7 +290,7 @@ void AnalyseVCD::analyse_VCD_data(const string& output_file_name)
     getDataInCommunicationProtocole(data_on_clock_stream, B1_Low, 8, 1, B1_High, data_from_protocole);
 
     vector<vector<char>> data_ascii;
-    getAsciiFromScanCode(data_from_protocole, data_ascii, true);
+    getAsciiFromScanCode(data_from_protocole, data_ascii, true, AZERTY);
 
     size_t pos;
     string buf;
@@ -732,7 +732,7 @@ bool AnalyseVCD::getDataInCommunicationProtocole(vector<vector<Var::Sample>>& da
     return true;
 }
 
-char AnalyseVCD::convertScanToAsciiCode(char ScanCode, bool isShift)
+char AnalyseVCD::convertScanToAsciiCode(char ScanCode, bool isShift, KEYBOARD_LAYOUT key_lay, bool isVerNum)
 {
     size_t i = 0;
 
@@ -741,16 +741,19 @@ char AnalyseVCD::convertScanToAsciiCode(char ScanCode, bool isShift)
         i++;
     }
 
+    if(!isVerNum && 0x69 <= i && i <= 0x7D)
+        return 0;
+
     if(isShift)
-        return shifted[i][1];
+        return shifted[i][key_lay];
     else
-        return unshifted[i][1];
+        return unshifted[i][key_lay];
 }
 
-void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole, vector<vector<char>>& data_ascii, bool isInverted)
+void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole, vector<vector<char>>& data_ascii, bool isInverted, KEYBOARD_LAYOUT key_lay)
 {
     data_ascii.resize(data_from_protocole.size());
-    bool isShift = false, isReleased = false;
+    bool isShift = false, isReleased = false, isCapitalLetter = false, isVerNum = false;
     char buf;
 
     for(size_t id_stream = 0; id_stream < data_from_protocole.size(); id_stream++)
@@ -782,18 +785,25 @@ void AnalyseVCD::getAsciiFromScanCode(vector<vector<char>>& data_from_protocole,
                 isReleased = false;
                 continue;
             }
+            if(isReleased == false && isCapsScanCode(buf))
+            {
+                isCapitalLetter = !isCapitalLetter;
+                continue;
+            }
+            if(isReleased == false && isVerNumScanCode(buf))
+            {
+                isVerNum = !isVerNum;
+                continue;
+            }
 
-            data_ascii[id_stream].push_back(convertScanToAsciiCode(buf, isShift));
-
-           // if(isShift)
-            //    isShift = false;
+            data_ascii[id_stream].push_back(convertScanToAsciiCode(buf, (isShift || isCapitalLetter), key_lay, isVerNum));
         }
     }
 }
 
 bool AnalyseVCD::isShiftScanCode(unsigned char scanCode)
 {
-    if(scanCode == 0x12)
+    if(scanCode == 0x12 || scanCode == 0x59)
         return true;
     return false;
 }
@@ -817,5 +827,19 @@ char AnalyseVCD::inverseByte(const char byteIn)
         }
     }
     return byteOut;
+}
+
+bool AnalyseVCD::isCapsScanCode(unsigned char scanCode)
+{
+    if(scanCode == 0x58)
+        return true;
+    return false;
+}
+
+bool AnalyseVCD::isVerNumScanCode(unsigned char scanCode)
+{
+    if(scanCode == 0x77)
+        return true;
+    return false;
 }
 
