@@ -1,15 +1,16 @@
 #include <iostream>
+#include <list>
 
 #include "settings.h"
 #include "uart_gestion.h"
 #include "write_file.h"
 
 
-#define BUFF_SIZE   1
+#define BUFF_SIZE   16
 
-//#define MAIN
+#define MAIN
 //#define TEST_VCD
-#define TEST_COM
+//#define TEST_COM
 
 
 char inverseByte(char byteIn);
@@ -29,6 +30,9 @@ int main()
     //Déclaration d'un buffer qui reçoit les données
     char buffer[BUFF_SIZE];
     int nb_bytes_read;
+    int nb_bytes_written;
+
+    list<unsigned char> bufferList;
 
     //lecture du fichier de config et récupération des données
     set_data->getSettings("init.txt");
@@ -41,17 +45,31 @@ int main()
     if( serial_com->OpenCOM(set_data->getComNumber())){
         //la communication série est ouverture
         cout << "COM Serie ouverte et prete a l'emploi" << endl;
+
+        //envoi d'un caractere pour la synchronisation
+        for(int i = 0; i < 0; i++){
+            buffer[0] = 'a';
+            serial_com->WriteCOM(buffer, 1, &nb_bytes_written);
+        }
+        int sum =  0;
        //opération de lecture sur la com série
         while(1){
             if(_kbhit())
                 break;
 
-            cout << "appel de la fonction de lecture du port série" <<endl;
-            serial_com->ReadCOM(buffer, 1, &nb_bytes_read);
-            cout << "nombre de bits lus: " << nb_bytes_read << endl;
+            //cout << "appel de la fonction de lecture du port série" <<endl;
+            serial_com->ReadCOM(buffer, 16, &nb_bytes_read);
+           cout << "." << endl;
+            sum += nb_bytes_read;
             if(nb_bytes_read != 0)
-                out_vcd_file->WriteByte(buffer);
+                for(int i = 0; i < nb_bytes_read; i++)
+                    bufferList.push_back(buffer[i]);
+
         }
+        cout << "lu " << sum << " octets" << endl;
+        for(list<unsigned char>::iterator j = bufferList.begin(); j != bufferList.end(); j++)
+            out_vcd_file->WriteByte(*j);
+
         //fermeture du port com
         cout << "fermeture de la communication" << endl;
         serial_com->CloseCOM();
@@ -125,8 +143,8 @@ int main()
         cout << "COM Serie ouverte et prete a l'emploi" << endl;
 
         //envoi d'un caractère
-        for(int i = 0; i < 5; i++){
-            buffer[0] = inverseByte('a');
+        for(int i = 0; i < 1; i++){
+            buffer[0] = 'a';
             serial_com->WriteCOM(buffer, 1, &nb_bytes_written);
             cout << "nb octet envoye: " << nb_bytes_written << endl;
             cout << "caractere envoye: " << buffer[0] << endl;
@@ -140,7 +158,7 @@ int main()
             serial_com->ReadCOM(buffer, 1, &nb_bytes_read);
             cout << "nombre de bits lus: " << nb_bytes_read << endl;
             if(nb_bytes_read != 0)
-                cout << "caractere recu: " << inverseByte(buffer[0]) << endl;
+                cout << "caractere recu: " << buffer[0] << endl;
         }
         //fermeture du port com
         cout << "fermeture de la communication" << endl;

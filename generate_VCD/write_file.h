@@ -39,7 +39,7 @@ public:
 
     void writeHeadFile(void);
     void initializeFileVariables(void);
-    void WriteByte(char* buff);
+    void WriteByte(unsigned char buff);
 };
 
 #endif // WRITE_FILE_H

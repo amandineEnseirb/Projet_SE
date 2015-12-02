@@ -66,13 +66,10 @@ void Write_file::initializeFileVariables(void){
     file << VCD_END_SYMBOLE <<endl;
 }
 
-void Write_file::WriteByte(char* buff){
+void Write_file::WriteByte(unsigned char buff){
 
     //on récupère les 8 bits de données
-    unsigned char byte = buff[0];
-
-    cout << "octet reçu: " << byte << endl;
-    cout << "ecriture de l'octet" << endl;
+    unsigned char byte = buff;
 
     //ecriture d'un octet dans le fichier, on n'écrit que les bits qui changent
 
@@ -100,18 +97,22 @@ void Write_file::WriteByte(char* buff){
         timestamp = GetTimer();
 
         //ecriture du timestamp en ns
-        file << VCD_TIMESTAMP_SYMBOLE << (int)timestamp << endl;
+        //file << VCD_TIMESTAMP_SYMBOLE << (int)timestamp << endl;
 
         //on écrit uniquement les données qui ont changées
         for(unsigned int i = 0; i < 8; i++){
 
             if((byte>>i & 0x01) != (previousByte>>i & 0x01)){
                 //alors on écrit
+                //ecriture du timestamp en ns
+                file << VCD_TIMESTAMP_SYMBOLE << (int)timestamp << endl;
+
                 if((byte >>i & 0x01) == 0)
                     file << VCD_VALUE_LOW << varIdentifiers[i] << endl;
                 else
                     file << VCD_VALUE_HIGH << varIdentifiers[i] << endl;
             }
+
         }
 
         previousByte = byte;
