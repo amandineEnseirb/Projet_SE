@@ -19,7 +19,7 @@ void USART_Init(unsigned int ubrr)
 	/*
 	 * Enable receiver and transmitter 
 	 */
-	UCSR0B = (1 << RXCIE0) | (1 << RXEN0) | (1 << TXEN0);
+	UCSR0B = _BV(TXEN0);
 		
 	UCSR0A &= ~(1 << U2X0); //Si mise à 0 du reste, erreur dans les baud rate
 
@@ -47,13 +47,6 @@ ISR(USART_UDRE_vect)
 	if(head_fifo == back_fifo)	//Disable interupt when fifo is empty
 		UCSR0B &= ~(1 << UDRIE0);
 }
-ISR(USART_RX_vect)
-{
-	UDR0;
-	is_capture_on = true;
-	PORTB ^= _BV(PB5);
-}
-
 ISR(PCINT0_vect)
 {
 	USART_Transmit(PINB);
