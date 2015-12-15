@@ -1,13 +1,15 @@
 all: install
 
-a.out: main.c
-	avr-g++ -Os -mmcu=atmega328p main.c
+loutre: main.c
+	avr-g++ -Os -mmcu=atmega328p main.c -o loutre
 
-a.bin:a.out
-	avr-objcopy a.out a.bin
+loutre.bin:loutre
+	avr-objcopy loutre loutre.bin
 
-install:a.bin
-	avrdude -c arduino -P /dev/ttyACM0 -p m328p -U flash:w:a.bin
+install:loutre.bin
+	avrdude -c arduino -P /dev/ttyACM0 -p m328p -U flash:w:loutre.bin
+
+compile:loutre
 
 clean:
 	rm -f a.out a.bin
