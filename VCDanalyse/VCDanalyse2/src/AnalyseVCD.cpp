@@ -332,10 +332,11 @@ int AnalyseVCD::get_VCD_header(ifstream& _vcd_file)
 
     while(!_vcd_file.eof())
     {
+        // reading file and compare it with symboles to decrypt it
         _vcd_file >> buf;
 
         if(!buf.compare(VCD_VAR_SYMBOLE))
-        {
+        { // new variable definition
             string var_type;
             _vcd_file >> var_type;
 
@@ -353,12 +354,12 @@ int AnalyseVCD::get_VCD_header(ifstream& _vcd_file)
             Add_Var(var_type, var_size, var_identifier, var_reference);
         }
         else if(!buf.compare(VCD_ENDDEFINITION_SYMBOLE))
-        {
+        { // end of the header detected
             Setenddefinition(true);
             return 1;
         }
         else if(!buf.compare(VCD_TIMESCALE_SYMBOLE))
-        {
+        { // timscale definition
             int ts;
             string ts_unit;
             _vcd_file >> buf;
@@ -423,7 +424,7 @@ int AnalyseVCD::get_VCD_header(ifstream& _vcd_file)
         }
     }
 
-    return 1;
+    return 0;
 }
 
 void AnalyseVCD::show_listeVar()
